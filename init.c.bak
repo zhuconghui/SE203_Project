@@ -1,0 +1,43 @@
+#include<stdint.h>
+
+extern uint8_t _bbss, _ebss; // bss start and end
+extern uint8_t _bvtor, _evtor; // vector table start and end
+extern uint8_t _btext_flash, _etext_flash; // text flash start and end
+extern uint8_t _btext, _etext; // text start and end
+extern uint8_t _bdata, _edata; // data start and end
+
+extern uint8_t _LMAtext, _LMAvtor, _LMAdata; // load memory address
+
+
+
+__attribute__((section(".text_flash"))) void init_text() {
+    uint8_t *src = &_LMAtext;
+    uint8_t *dst = &_btext;
+
+    while (dst < &_etext){
+        *dst++ = *src++;
+    }
+}
+
+void init() {
+    uint8_t *src = &_LMAvtor;
+    uint8_t *dst = &_bvtor;
+
+    // copy vector table to ram
+    while (dst < &_evtor){
+        *dst++ = *src++;
+    }
+
+    // copy data to ram
+    src = &_LMAdata;
+    dst = &_bdata;
+
+    while (dst < &_edata){
+        *dst++ = *src++;
+    }
+
+    // init bss
+    for(uint8_t *dst = &_bbss; dst < &_ebss; dst++){
+        *dst = 0;
+    }
+}

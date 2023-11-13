@@ -1,0 +1,57 @@
+MEMORY 
+{
+    FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 1M
+    SRAM1 (wx) : ORIGIN = 0x20000000, LENGTH = 96K
+    SRAM2 (wx) : ORIGIN = 0x10000000, LENGTH = 32K
+}
+
+_stack = ORIGIN(SRAM2) + LENGTH(SRAM2); /* 0x10008000 */
+
+SECTIONS
+{
+    .vtor_init : {
+        *(.vtor_init)
+    } > FLASH
+
+    .vtor : {
+        _bvtor = .;
+        *(.vtor)
+        _evtor = .;
+    } > SRAM1 AT>FLASH
+
+    .text_flash : {
+        _btext_flash = .;
+        *(.text_flash)
+        _etext_flash = .;
+    } > FLASH
+
+    .text : {
+        _btext = .;
+        *(.text)
+        _etext = .;
+    } > SRAM1 AT>FLASH
+
+    .rodata :{
+        /* _rodata = .; */
+        *(.rodata)
+        /* _erodata = .; */
+    } > FLASH
+
+    .data : {
+        _bdata = .;
+        *(.data)
+        _edata = .;
+    } > SRAM1 AT>FLASH
+
+    .bss : {
+        _bbss = .;
+        *(.bss) *(COMMON)
+        _ebss = .;
+    } > SRAM1
+}
+
+_LMAtext = LOADADDR(.text);
+_LMAvtor = LOADADDR(.vtor);
+_LMAdata = LOADADDR(.data);
+
+ENTRY(_start)

@@ -1,0 +1,16 @@
+.syntax unified
+.global _start
+.thumb
+.thumb_func
+
+.section .text_flash, "ax", %progbits
+
+_start :
+    ldr sp, =_stack
+    bl init_text
+    bl init
+    bl main
+
+_exit :
+    b _exit
+    
